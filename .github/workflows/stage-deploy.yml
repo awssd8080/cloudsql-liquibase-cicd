@@ -26,7 +26,7 @@ jobs:
 
       - name: Start Cloud SQL Auth Proxy (Using Env)
         run: |
-          cat > sa-key.json <<'EOF'
+          cat > sa-key.json <<EOF
           $GCP_SA_KEY
           EOF
           echo "First 3 lines of JSON file (debug):"
