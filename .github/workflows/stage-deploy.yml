@@ -19,10 +19,10 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Start Cloud SQL Proxy
-        uses: google-github-actions/cloud-sql-proxy@v2
+        uses: google-github-actions/cloud-sql-proxy@main
         with:
           instance: ${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }}
-          credentials: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Install Liquibase
         run: |
@@ -42,3 +42,4 @@ jobs:
             --username=${{ secrets.DB_USER }} \
             --password=${{ secrets.DB_PASS }} \
             update
+
