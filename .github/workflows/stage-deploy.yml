@@ -26,7 +26,9 @@ jobs:
 
       - name: Start Cloud SQL Auth Proxy (Using Env)
         run: |
-          printf "%s" "$GCP_SA_KEY" > sa-key.json
+          cat > sa-key.json <<'EOF'
+          $GCP_SA_KEY
+          EOF
           echo "First 3 lines of JSON file (debug):"
           head -n 3 sa-key.json
           export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/sa-key.json"
