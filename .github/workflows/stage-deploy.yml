@@ -1,0 +1,44 @@
+name: Stage DB Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-stage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Start Cloud SQL Proxy
+        uses: google-github-actions/cloud-sql-proxy@v1
+        with:
+          instance: ${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }}
+          credentials: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Install Liquibase
+        run: |
+          curl -Lo liquibase.tar.gz https://download.liquibase.org/liquibase.tar.gz
+          tar -xzf liquibase.tar.gz
+          sudo mv liquibase /usr/local/bin/liquibase
+
+      - name: Run Liquibase on Stage
+        run: |
+          liquibase \
+            --url="${{ secrets.DB_STAGE_URL }}" \
+            --username=${{ secrets.DB_USER }} \
+            --password=${{ secrets.DB_PASS }} \
+            tag "build-\${GITHUB_RUN_NUMBER}"
+          liquibase \
+            --url="${{ secrets.DB_STAGE_URL }}" \
+            --username=${{ secrets.DB_USER }} \
+            --password=${{ secrets.DB_PASS }} \
+            update
