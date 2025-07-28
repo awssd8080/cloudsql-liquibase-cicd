@@ -33,7 +33,8 @@ jobs:
           curl -Lo liquibase.zip https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.zip
           sudo apt-get update && sudo apt-get install -y unzip
           unzip liquibase.zip -d liquibase-cli
-          sudo mv liquibase-cli/liquibase /usr/local/bin/liquibase
+          sudo mv liquibase-cli /opt/liquibase
+          sudo ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase
           liquibase --version
 
       - name: Run Liquibase on Stage
