@@ -8,6 +8,11 @@ on:
 jobs:
   deploy-stage:
     runs-on: ubuntu-latest
+    env:
+      CLOUDSQL_INSTANCE_CONNECTION: ${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }}
+      DB_STAGE_URL: ${{ secrets.DB_STAGE_URL }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASS: ${{ secrets.DB_PASS }}
 
     steps:
       - name: Checkout repo
@@ -20,23 +25,25 @@ jobs:
 
       - name: Download Cloud SQL Auth Proxy
         run: |
+          echo "Downloading Cloud SQL Auth Proxy..."
           curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.0/cloud-sql-proxy.linux.amd64
           chmod +x cloud-sql-proxy
 
       - name: Download SA Key from GCS and Start Proxy
         run: |
-          echo "Downloading key from GCS..."
+          echo "Downloading service account key from GCS..."
           gcloud storage cp "gs://liquikeys/key.json" sa-key.json
-          echo "First 3 lines of key file:"
+          echo "First 3 lines of JSON file (debug):"
           head -n 3 sa-key.json
           export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/sa-key.json"
-          ./cloud-sql-proxy "${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }}" &
+          ./cloud-sql-proxy "$CLOUDSQL_INSTANCE_CONNECTION" &
           sleep 10
-          echo "Checking if port 5432 is open..."
-          netstat -tlnp | grep 5432 || echo "Port 5432 is NOT open!"
+          echo "Checking port 5432..."
+          netstat -tlnp | grep 5432 || echo "Port 5432 not open!"
 
       - name: Install Liquibase
         run: |
+          echo "Installing Liquibase..."
           curl -Lo liquibase.zip https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.zip
           sudo apt-get update && sudo apt-get install -y unzip
           unzip liquibase.zip -d liquibase-cli
@@ -47,13 +54,15 @@ jobs:
       - name: Run Liquibase on Stage
         run: |
           liquibase \
-            --url="${{ secrets.DB_STAGE_URL }}" \
-            --username="${{ secrets.DB_USER }}" \
-            --password="${{ secrets.DB_PASS }}" \
+            --url="$DB_STAGE_URL" \
+            --username=$DB_USER \
+            --password=$DB_PASS \
+            --changelog-file=db/changelog-master.xml \
             tag "build-${GITHUB_RUN_NUMBER}"
           liquibase \
-            --url="${{ secrets.DB_STAGE_URL }}" \
-            --username="${{ secrets.DB_USER }}" \
-            --password="${{ secrets.DB_PASS }}" \
+            --url="$DB_STAGE_URL" \
+            --username=$DB_USER \
+            --password=$DB_PASS \
+            --changelog-file=db/changelog-master.xml \
             update
 
