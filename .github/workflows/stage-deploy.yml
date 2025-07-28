@@ -9,7 +9,6 @@ jobs:
   deploy-stage:
     runs-on: ubuntu-latest
     env:
-      GCP_KEY_PATH: ${{ secrets.GCP_KEY_PATH }}
       CLOUDSQL_INSTANCE_CONNECTION: ${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }}
       DB_STAGE_URL: ${{ secrets.DB_STAGE_URL }}
       DB_USER: ${{ secrets.DB_USER }}
@@ -33,12 +32,12 @@ jobs:
       - name: Download SA Key from GCS and Start Proxy
         run: |
           echo "Downloading service account key from GCS..."
-          echo "Using path: $GCP_KEY_PATH"
-          gcloud storage cp "$GCP_KEY_PATH" sa-key.json
+          echo "Using path: ${{ secrets.GCP_KEY_PATH }}"
+          gcloud storage cp "${{ secrets.GCP_KEY_PATH }}" sa-key.json
           echo "First 3 lines of JSON file (debug):"
           head -n 3 sa-key.json
           export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/sa-key.json"
-          ./cloud-sql-proxy "$CLOUDSQL_INSTANCE_CONNECTION" &
+          ./cloud-sql-proxy "${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }}" &
           sleep 10
           echo "Checking port 5432..."
           netstat -tlnp | grep 5432 || echo "Port 5432 not open!"
