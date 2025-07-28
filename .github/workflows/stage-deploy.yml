@@ -36,7 +36,7 @@ jobs:
             --url="${{ secrets.DB_STAGE_URL }}" \
             --username=${{ secrets.DB_USER }} \
             --password=${{ secrets.DB_PASS }} \
-            tag "build-\${GITHUB_RUN_NUMBER}"
+            tag "build-${GITHUB_RUN_NUMBER}"
           liquibase \
             --url="${{ secrets.DB_STAGE_URL }}" \
             --username=${{ secrets.DB_USER }} \

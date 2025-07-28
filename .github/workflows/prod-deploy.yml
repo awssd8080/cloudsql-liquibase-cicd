@@ -34,7 +34,7 @@ jobs:
             --url="${{ secrets.DB_PROD_URL }}" \
             --username=${{ secrets.DB_USER }} \
             --password=${{ secrets.DB_PASS }} \
-            tag "release-\${GITHUB_RUN_NUMBER}"
+            tag "release-${GITHUB_RUN_NUMBER}"
           liquibase \
             --url="${{ secrets.DB_PROD_URL }}" \
             --username=${{ secrets.DB_USER }} \
