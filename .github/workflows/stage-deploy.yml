@@ -23,10 +23,13 @@ jobs:
           curl -o cloud-sql-proxy https://dl.google.com/cloudsql/cloud-sql-proxy.linux.amd64
           chmod +x cloud-sql-proxy
 
-      - name: Start Cloud SQL Auth Proxy
+      - name: Start Cloud SQL Auth Proxy (Debug)
         run: |
-          ./cloud-sql-proxy ${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }} &
-          sleep 5
+          echo "Starting Cloud SQL Proxy in debug mode..."
+          ./cloud-sql-proxy ${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }} --verbose &
+          sleep 10
+          echo "Checking if port 5432 is open..."
+          netstat -tlnp | grep 5432 || echo "Port 5432 is NOT open!"
 
       - name: Install Liquibase
         run: |
@@ -39,6 +42,7 @@ jobs:
 
       - name: Run Liquibase on Stage
         run: |
+          echo "Running Liquibase update on Stage..."
           liquibase \
             --url="${{ secrets.DB_STAGE_URL }}" \
             --username=${{ secrets.DB_USER }} \
