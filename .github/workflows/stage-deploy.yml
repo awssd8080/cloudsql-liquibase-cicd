@@ -20,7 +20,8 @@ jobs:
 
       - name: Download Cloud SQL Auth Proxy
         run: |
-          curl -o cloud-sql-proxy https://dl.google.com/cloudsql/cloud-sql-proxy.linux.amd64
+          echo "Downloading Cloud SQL Auth Proxy..."
+          curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.0/cloud-sql-proxy.linux.amd64
           chmod +x cloud-sql-proxy
 
       - name: Start Cloud SQL Auth Proxy (Debug)
@@ -33,6 +34,7 @@ jobs:
 
       - name: Install Liquibase
         run: |
+          echo "Downloading and installing Liquibase..."
           curl -Lo liquibase.zip https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.zip
           sudo apt-get update && sudo apt-get install -y unzip
           unzip liquibase.zip -d liquibase-cli
