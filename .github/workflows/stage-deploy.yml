@@ -25,6 +25,8 @@ jobs:
           chmod +x cloud-sql-proxy
 
       - name: Start Cloud SQL Auth Proxy (Using Env)
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         run: |
           cat > sa-key.json <<EOF
           $GCP_SA_KEY
