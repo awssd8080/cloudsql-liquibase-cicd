@@ -24,13 +24,12 @@ jobs:
           curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.0/cloud-sql-proxy.linux.amd64
           chmod +x cloud-sql-proxy
 
-      - name: Start Cloud SQL Auth Proxy (Using Env)
+      - name: Download SA Key from GCS and Start Proxy
         env:
-          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GCP_KEY_PATH: ${{ secrets.GCP_KEY_PATH }}
         run: |
-          cat > sa-key.json <<EOF
-          $GCP_SA_KEY
-          EOF
+          echo "Downloading service account key from GCS..."
+          gcloud storage cp $GCP_KEY_PATH sa-key.json
           echo "First 3 lines of JSON file (debug):"
           head -n 3 sa-key.json
           export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/sa-key.json"
