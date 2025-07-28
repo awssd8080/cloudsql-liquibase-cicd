@@ -24,17 +24,18 @@ jobs:
           curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.0/cloud-sql-proxy.linux.amd64
           chmod +x cloud-sql-proxy
 
-      - name: Start Cloud SQL Auth Proxy (Debug)
+      - name: Start Cloud SQL Auth Proxy (Using Env)
         run: |
-          echo "Starting Cloud SQL Proxy in debug mode..."
-          ./cloud-sql-proxy ${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }} --verbose &
+          echo "$GCP_SA_KEY" > sa-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/sa-key.json"
+          ./cloud-sql-proxy ${{ secrets.CLOUDSQL_INSTANCE_CONNECTION }} &
           sleep 10
-          echo "Checking if port 5432 is open..."
-          netstat -tlnp | grep 5432 || echo "Port 5432 is NOT open!"
+          echo "Checking port 5432..."
+          netstat -tlnp | grep 5432 || echo "Port 5432 not open!"
 
       - name: Install Liquibase
         run: |
-          echo "Downloading and installing Liquibase..."
+          echo "Installing Liquibase..."
           curl -Lo liquibase.zip https://github.com/liquibase/liquibase/releases/download/v4.29.2/liquibase-4.29.2.zip
           sudo apt-get update && sudo apt-get install -y unzip
           unzip liquibase.zip -d liquibase-cli
@@ -44,7 +45,6 @@ jobs:
 
       - name: Run Liquibase on Stage
         run: |
-          echo "Running Liquibase update on Stage..."
           liquibase \
             --url="${{ secrets.DB_STAGE_URL }}" \
             --username=${{ secrets.DB_USER }} \
