@@ -17,3 +17,9 @@ CREATE TABLE IF NOT EXISTS test_table3 (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50)
 );
+
+--changeset liquibase_user:004
+CREATE TABLE IF NOT EXISTS test_table4 (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50)
+);
